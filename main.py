@@ -1,8 +1,6 @@
 from flask import Flask, request
 import json
 import requests
-import jwt
-import time
 
 app = Flask(__name__)
 
@@ -14,7 +12,9 @@ def api_root():
 def api_git_msg():
     if request.headers['Content-Type'] == 'application/json':
         data = request.json
-        if 'issue' in data and 'title' in data['issue'] and 'body' in data['issue']:
+        action = data.get('action', '')
+
+        if action == 'opened':
             issue_title = data['issue']['title']
             issue_body = data['issue']['body']
             print(f"Issue Title: {issue_title}")
@@ -28,18 +28,17 @@ def api_git_msg():
             create_comment(repo_full_name, issue_number, "test comment")
 
             return "Issue title and body printed."
-        else:
-            return "Invalid JSON format; missing issue title or body."
+
+        return "Not a new issue, no action required."
     else:
         return "415 Unsupported Media Type ;)"
 
 def create_comment(repo_full_name, issue_number, comment_text):
-    # Construct the API URL based on the extracted details
-    # the repo_full_name is in the format "owner/repo"
+    
     url = f'https://api.github.com/repos/{repo_full_name}/issues/{issue_number}/comments'
 
     # Generate a fine grained access token and give read and write permission to it for issues in order to comment on issues
-    private_key = "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"
+    private_key = "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"
     
     headers = {
         'Authorization': f'Bearer {private_key}',
@@ -52,6 +51,7 @@ def create_comment(repo_full_name, issue_number, comment_text):
     }
 
     response = requests.post(url, headers=headers, json=data)
+    print(response)
 
     if response.status_code == 201:
         print("Comment created successfully.")
