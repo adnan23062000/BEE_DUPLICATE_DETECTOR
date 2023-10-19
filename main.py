@@ -1,7 +1,13 @@
 from flask import Flask, request
+import sqlalchemy
 from createComment import create_comment
+from db_config import configure_database
+from models import BugReport
 
 app = Flask(__name__)
+
+configure_database(app)
+
 
 @app.route('/')
 def api_root():
