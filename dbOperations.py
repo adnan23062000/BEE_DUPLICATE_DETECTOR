@@ -1,32 +1,34 @@
-from dbModel import db, BugReport
-from sqlalchemy import inspect
+from sqlalchemy.exc import OperationalError
+from models import BugReport
+from db_config import db
+import json
 
-
-def table_exists():
-    with db.engine.connect() as connection:
-        inspector = inspect(connection)
-        return 'bug_report' in inspector.get_table_names()
-
-
-def insert_bug_report(id, title, body, embeddings, issue_link):
-    existing_bug_report = BugReport.query.get(id)
+def is_bug_report_table_empty():
+    try:
+        first_bug_report = BugReport.query.first()
+        return first_bug_report is None
+    except OperationalError:
+        return True
     
-    if existing_bug_report is not None:
-        return "A row with the same 'id' already exists."
-
-    bug_report = BugReport(id=id, title=title, body=body, embeddings=embeddings, issue_link=issue_link)
-    db.session.add(bug_report)
-    db.session.commit()
-
-    return "Bug report inserted successfully."
 
 
-def get_all_bug_reports():
-    bug_reports = BugReport.query.all()
+def insert_issue_to_db(issue_id, issue_title, issue_body, issue_url, embedding):
+    try:
+        embedding_list = embedding.tolist()
+        embedding_json = json.dumps(embedding_list)
 
-    for bug_report in bug_reports:
-        print(f'ID: {bug_report.id}')
-        print(f'Title: {bug_report.title}')
-        print('\n\n')
+        bug_report = BugReport(
+            issueId=issue_id,
+            issueTitle=issue_title,
+            issueBody=issue_body,
+            issueURL=issue_url,
+            embedding=embedding_json
+        )
 
-    return 'Data Fetched successfully.'
+        db.session.add(bug_report)
+        db.session.commit()
+        print('post success')
+        return True
+    except Exception as e:
+        print(f"Error inserting data into the database: {str(e)}")
+        return False

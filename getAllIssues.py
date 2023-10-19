@@ -10,7 +10,8 @@ def fetch_repository_issues(repo_full_name):
     response = requests.get(issues_url, headers=headers)
 
     if response.status_code == 200:
-        return response.json()
+        issues_data = response.json()
+        return issues_data
     else:
         print(f"Failed to fetch issues. Status code: {response.status_code}")
         return []
