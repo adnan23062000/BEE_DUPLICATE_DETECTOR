@@ -49,10 +49,6 @@ def api_git_msg():
                     insert_issue_to_db(issue_id, issue_title, issue_body, issue_url, embedding)
 
 
-
-            # Create a comment on the GitHub issue
-            # create_comment(repo_full_name, issue_number, "test comment")
-
             return "Issue title and body printed."
 
         return "Not a new issue, no action required."

@@ -50,10 +50,13 @@ def create_similarity_string(sorted_results):
         similarity_string += f"**Issue ID:** {issue_id}\n"
         similarity_string += f"**Issue Title:** {issue_title}\n"
         similarity_string += f"**Similarity Score:** {similarity:.4f}\n"
-        similarity_string += f"\n**Issue URL:** {issue_url}\n"
-        similarity_string += f"\n**Issue Body:** {issue_body}\n"
+        similarity_string += f"**Issue URL:** {issue_url}\n"
+        similarity_string += f"**Issue Body:** {issue_body}\n\n"
         
 
         similarity_string += "\n\n\n"
+
+    
+    print(similarity_string)
 
     return similarity_string
