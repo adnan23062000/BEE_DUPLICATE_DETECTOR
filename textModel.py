@@ -1,32 +1,39 @@
 from sentence_transformers import SentenceTransformer, util
+import numpy as np
 import json
+import torch
 
-def calculate_similarity(input_text):
+def calculate_similarity(input_text, bug_reports):
     model = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
 
-    embeddings = []
-
-    with open('test.json', 'r', encoding='utf-8') as json_file:
-        bug_reports = [json.loads(line) for line in json_file]
-
-    # Calculate the embeddings for all bug reports
-    embeddings = model.encode([bug_report.get('originalDescription', '') for bug_report in bug_reports])
-    
     input_embedding = model.encode(input_text)
 
-    result = []
+    similarity_results = []
+    
+    for bug_report in bug_reports:
+        issue_embedding_json = bug_report.embedding
+        issue_embedding_list = json.loads(issue_embedding_json)
+        issue_embedding_array = np.array(issue_embedding_list)
 
-    for i, embedding_i in enumerate(embeddings):
-        similarity_score = util.pytorch_cos_sim(input_embedding, embedding_i).item()
-        result.append({
-            'bug_report_id': bug_reports[i]['key'],
-            'similarity_score': similarity_score,
-            'description': bug_reports[i]['originalDescription']
-        })
+        # Calculate cosine similarity between input_embedding and issue_embedding_array
+        issue_embedding_tensor = torch.from_numpy(issue_embedding_array).float()
+        similarity_score = util.pytorch_cos_sim(input_embedding, issue_embedding_tensor.unsqueeze(0))[0][0]
+        
 
-    sorted_result = sorted(result, key=lambda x: x['similarity_score'], reverse=True)
+        result = {
+            'issueId': bug_report.issueId,
+            'issueTitle': bug_report.issueTitle,
+            'issueBody': bug_report.issueBody,
+            'issueURL': bug_report.issueURL,
+            'similarity': similarity_score
+        }
+        similarity_results.append(result)
 
-    return sorted_result
+    
+    sorted_results = sorted(similarity_results, key=lambda x: x['similarity'], reverse=True)
+
+    return sorted_results
+
 
 
 def calculate_embeddings(input):
