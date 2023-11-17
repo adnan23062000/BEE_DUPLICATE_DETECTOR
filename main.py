@@ -29,7 +29,7 @@ def api_git_msg():
                 id = data['issue']['number']
                 title = data['issue']['title']
                 body = data['issue']['body']
-                embedding = calculate_embeddings(body)
+                embedding = calculate_embeddings(title+body)
                 url = data['issue']['html_url']
                 bug_reports = fetch_all_bug_reports()
                 insert_issue_to_db(id, title, body, url, embedding)

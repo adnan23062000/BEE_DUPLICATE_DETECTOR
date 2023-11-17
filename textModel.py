@@ -38,7 +38,6 @@ def calculate_similarity(input_text, bug_reports):
 
 def calculate_embeddings(input):
     try:
-        print('dhukse')
         model = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
         input_embedding = model.encode(input)
         return input_embedding
