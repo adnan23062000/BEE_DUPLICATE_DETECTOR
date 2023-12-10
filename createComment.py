@@ -22,11 +22,6 @@ def create_comment(repo_full_name, issue_number, comment_text):
     comment_body = response_text[0]
     isDuplicate = response_text[1]
 
-    print("-------------------")
-    print(comment_body)
-    print("-------------------")
-    print(isDuplicate)
-    print("-------------------")
 
     if(isDuplicate):
         create_label(repo_full_name, issue_number)
